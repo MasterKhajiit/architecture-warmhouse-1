@@ -40,8 +40,7 @@
 
 ### 5. Визуализация контекста системы — диаграмма С4
 
-[C4 Context Diagram](https://github.com/MasterKhajiit/architecture-warmhouse-1/blob/24f9dbfc832c9c661ab10f619ca8cf849590490d/Schemes/C4_context_Old.png)
-
+[C4 Context Diagram](./Schemes/C4_context_Old.png)
 
 ```PlantUML
 @startuml
