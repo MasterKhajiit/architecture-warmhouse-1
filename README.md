@@ -69,11 +69,80 @@ Rel(WarmHouseSystem, sensor, "Команды управления датчико
 
 # Задание 2. Проектирование микросервисной архитектуры
 
-В этом задании вам нужно предоставить только диаграммы в модели C4. Мы не просим вас отдельно описывать получившиеся микросервисы и то, как вы определили взаимодействия между компонентами To-Be системы. Если вы правильно подготовите диаграммы C4, они и так это покажут.
-
 **Диаграмма контейнеров (Containers)**
 
-Добавьте диаграмму.
+[C4 Container Diagram](./Schemes/C4_container.png)
+
+```plantuml
+
+@startuml
+title Warmhouse Container Diagram
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "Пользователь", "Пользователь использующий систему")
+Person(admin, "Администратор", "Администратор выполняющий управление системой")
+
+Container_Boundary(WarmHouseSystem, "WarmHouseSystem") {
+    Container(WebUI, "WebUI", "UI для управления системой")
+    Container(APIGate, "API", "API взаимодействия")
+    Container(IOTGate, "IOT Gate", "Gate для устройств")
+
+    Container(AccountMGM, "Account System", "Система управления аккаунтами")
+    ContainerDb(AccountDb, "Account Database", "PostgreSQL", "База данных о пользователях, домах и зарегистрированных устройствах")
+
+    Container(ScenarioEngine, "ScenarioEngine", "Система создания и управления пользовательскими сценариями")
+    ContainerDb(ScenarioDb, "Scenario Database", "PostgreSQL", "База данных пользовательских сценариев")
+
+    Container_Boundary(DeviceMGM, "Система управления устройствами") {
+        Container(Management, "Device Management", "Система конфигурации и управления")
+        Container(Telemetry, "Device Telemetry", "Система мониторинга и телеметрии")
+        ContainerDb(DeviceDb, "Device Database", "PostgreSQL", "База конфигурации устройств и телеметрии")
+    }
+    Container(MessageBrocker, "MessageBrocker", "RabbitMQ",  "Брокер сообщений")
+}
+
+System_Ext(sensor1, "Устройство типа 1", "API на устройстве")
+System_Ext(sensor2, "Устройство типа 2", "API на устройстве")
+System_Ext(sensor3, "Устройство типа 3", "API на устройстве")
+
+Rel(user, WebUI, "Регистрация пользователядомаустройства")
+Rel(user, WebUI, "Команды управления устройством")
+Rel(user, WebUI, "Мониторинг и просмотр телеметрии устройства")
+Rel(user, WebUI, "Настройка сценариев умного дома")
+
+Rel(admin, WebUI, "Мониторинг датчиков")
+Rel(admin, WebUI, "Администрирование системы")
+
+Rel(WebUI, APIGate, "Запросы")
+
+Rel(APIGate, AccountMGM, "Регистрация пользователядомаустройства")
+Rel(AccountMGM, AccountDb, "CRUD")
+
+Rel(APIGate, ScenarioEngine, "Настройка сценариев умного дома")
+Rel(ScenarioEngine, ScenarioDb, "CRUD")
+Rel(ScenarioEngine, Management, "Команды управления устройством")
+
+Rel(APIGate, Management, "Команды управления устройством")
+Rel(Management, DeviceDb, "Команды управления устройством")
+Rel(Management, MessageBrocker, "Команды управления устройством")
+
+Rel(APIGate, Telemetry, "Мониторинг и просмотр телеметрии устройства")
+Rel(MessageBrocker, Telemetry, "Данные и телеметрия")
+Rel(Telemetry, DeviceDb, "Данные и телеметрия")
+
+Rel(MessageBrocker, IOTGate, "Команды управления устройством")
+Rel(IOTGate, MessageBrocker, "Данные и телеметрия")
+
+Rel(IOTGate, sensor1, "Команды управления устройством")
+Rel(IOTGate, sensor2, "Команды управления устройством")
+Rel(IOTGate, sensor3, "Команды управления устройством")
+
+Rel(sensor1, IOTGate, "Данные и телеметрия")
+Rel(sensor2, IOTGate, "Данные и телеметрия")
+Rel(sensor3, IOTGate, "Данные и телеметрия")
+@enduml
+```
 
 **Диаграмма компонентов (Components)**
 

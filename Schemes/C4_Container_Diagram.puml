@@ -1,7 +1,7 @@
 @startuml
 title Warmhouse Container Diagram
 
-!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
 
 Person(user, "Пользователь", "Пользователь использующий систему")
 Person(admin, "Администратор", "Администратор выполняющий управление системой")
@@ -57,8 +57,11 @@ Rel(Telemetry, DeviceDb, "Данные и телеметрия")
 Rel(MessageBrocker, IOTGate, "Команды управления устройством")
 Rel(IOTGate, MessageBrocker, "Данные и телеметрия")
 
+Rel(IOTGate, sensor1, "Команды управления устройством")
+Rel(IOTGate, sensor2, "Команды управления устройством")
+Rel(IOTGate, sensor3, "Команды управления устройством")
+
 Rel(sensor1, IOTGate, "Данные и телеметрия")
 Rel(sensor2, IOTGate, "Данные и телеметрия")
 Rel(sensor3, IOTGate, "Данные и телеметрия")
-
 @enduml
