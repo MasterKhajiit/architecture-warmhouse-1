@@ -1,0 +1,66 @@
+@startuml
+title Warmhouse Container Diagram
+
+!include https://raw.githubusercontent.com/RicardoNiepel/C4-PlantUML/master/C4_Container.puml
+
+Person(user, "Пользователь", "Пользователь использующий систему")
+Person(admin, "Администратор", "Администратор выполняющий управление системой")
+
+Container_Boundary(WarmHouseSystem, "WarmHouseSystem") {
+    Container(WebUI, "WebUI", "UI для управления системой")
+    Container(APIGate, "API", "API взаимодействия")
+
+    Container(AccountMGM, "Account System", "Система управления аккаунтами")
+    ContainerDb(AccountDb, "Account Database", "PostgreSQL", "База данных о пользователях, домах и зарегистрированных устройствах")
+
+    Container(ScenarioEngine, "ScenarioEngine", "Система создания и управления пользовательскими сценариями")
+    ContainerDb(ScenarioDb, "Scenario Database", "PostgreSQL", "База данных пользовательских сценариев")
+
+    Container_Boundary(DeviceMGM, "Система управления устройствами") {
+        Container(Management, "Device Management", "Система конфигурации и управления")
+        Container(Telemetry, "Device Telemetry", "Система мониторинга и телеметрии")
+        ContainerDb(DeviceDb, "Device Database", "PostgreSQL", "База конфигурации устройств и телеметрии")
+    }
+    Container(MessageBrocker, "MessageBrocker", "RabbitMQ",  "Брокер сообщений")
+}
+
+System_Ext(sensor1, "Устройство типа 1", "API на устройстве")
+System_Ext(sensor2, "Устройство типа 2", "API на устройстве")
+System_Ext(sensor3, "Устройство типа 3", "API на устройстве")
+
+Rel(user, WebUI, "Регистрация пользователя\дома\устройства")
+Rel(user, WebUI, "Команды управления устройством")
+Rel(user, WebUI, "Мониторинг и просмотр телеметрии устройства")
+Rel(user, WebUI, "Настройка сценариев умного дома")
+
+Rel(admin, WebUI, "Мониторинг датчиков")
+Rel(admin, WebUI, "Администрирование системы")
+
+Rel(WebUI, APIGate, "Запросы")
+
+Rel(APIGate, AccountMGM, "Регистрация пользователя\дома\устройства")
+Rel(AccountMGM, AccountDb, "CRUD")
+
+Rel(APIGate, ScenarioEngine, "Настройка сценариев умного дома")
+Rel(ScenarioEngine, ScenarioDb, "CRUD")
+Rel(ScenarioEngine, Management, "Команды управления устройством")
+
+Rel(APIGate, Management, "Команды управления устройством")
+Rel(Management, DeviceDb, "Команды управления устройством")
+Rel(Management, MessageBrocker, "Команды управления устройством")
+
+Rel(APIGate, Telemetry, "Мониторинг и просмотр телеметрии устройства")
+Rel(MessageBrocker, Telemetry, "Данные и телеметрия")
+Rel(Telemetry, DeviceDb, "Данные и телеметрия")
+
+
+
+Rel(MessageBrocker, sensor1, "Команды управления устройством")
+Rel(MessageBrocker, sensor2, "Команды управления устройством")
+Rel(MessageBrocker, sensor3, "Команды управления устройством")
+
+Rel(sensor1, MessageBrocker, "Данные и телеметрия")
+Rel(sensor2, MessageBrocker, "Данные и телеметрия")
+Rel(sensor3, MessageBrocker, "Данные и телеметрия")
+
+@enduml

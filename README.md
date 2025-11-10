@@ -52,7 +52,7 @@ Person(user, "Пользователь", "Пользователь исполь�
 Person(admin, "Администратор", "Администратор выполняющий управление системой")
 System(WarmHouseSystem, "WarmHouseSystem", "Система управления отоплением")
 
-System_Ext(sensor, "Датчик", "API на устройстве регулировки")
+System_Ext(sensor, "Датчик", "API регулировки на устройстве")
 
 Rel(user, WarmHouseSystem, "Включение/выключение отопления")
 Rel(user, WarmHouseSystem, "Установка температуры")
