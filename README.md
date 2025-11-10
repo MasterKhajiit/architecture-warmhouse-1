@@ -100,19 +100,19 @@ Container_Boundary(WarmHouseSystem, "WarmHouseSystem") {
     Container(IOTGate, "IOT Gate", "Gate для устройств")
 
     'Функционал работы с учетными данными Пользователей, Домов, Устройств
-    Container_Boundary(AccountMGM, "Система управления аккаунтами"){
+    Container_Boundary(AccountMGM, "Account Management"){
         Container(AccountCore, "Account System", "Система управления аккаунтами")
         ContainerDb(AccountDb, "Account Database", "PostgreSQL", "База данных о пользователях, домах и зарегистрированных устройствах")
     }
 
     'Функционал работы с пользовательскими сценариями умного дома
-    Container_Boundary(ScenarioMGM, "Система создания и управления пользовательскими сценариями"){
+    Container_Boundary(ScenarioMGM, "Scenario Engine"){
         Container(ScenarioEngine, "ScenarioEngine", "Система создания и управления пользовательскими сценариями")
         ContainerDb(ScenarioDb, "Scenario Database", "PostgreSQL", "База данных пользовательских сценариев")
     }
 
     'Функционал работы с устройствами умного дома
-    Container_Boundary(DeviceMGM, "Система управления устройствами") {
+    Container_Boundary(DeviceMGM, "Device Management") {
         Container(Management, "Device Management", "Система конфигурации и управления")
         Container(Telemetry, "Device Telemetry", "Система мониторинга и телеметрии")
         ContainerDb(DeviceDb, "Device Database", "PostgreSQL", "База конфигурации устройств и телеметрии")
