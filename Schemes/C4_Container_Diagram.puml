@@ -9,6 +9,7 @@ Person(admin, "Администратор", "Администратор выпо
 Container_Boundary(WarmHouseSystem, "WarmHouseSystem") {
     Container(WebUI, "WebUI", "UI для управления системой")
     Container(APIGate, "API", "API взаимодействия")
+    Container(IOTGate, "IOT Gate", "Gate для устройств")
 
     Container(AccountMGM, "Account System", "Система управления аккаунтами")
     ContainerDb(AccountDb, "Account Database", "PostgreSQL", "База данных о пользователях, домах и зарегистрированных устройствах")
@@ -53,14 +54,11 @@ Rel(APIGate, Telemetry, "Мониторинг и просмотр телемет
 Rel(MessageBrocker, Telemetry, "Данные и телеметрия")
 Rel(Telemetry, DeviceDb, "Данные и телеметрия")
 
+Rel(MessageBrocker, IOTGate, "Команды управления устройством")
+Rel(IOTGate, MessageBrocker, "Данные и телеметрия")
 
-
-Rel(MessageBrocker, sensor1, "Команды управления устройством")
-Rel(MessageBrocker, sensor2, "Команды управления устройством")
-Rel(MessageBrocker, sensor3, "Команды управления устройством")
-
-Rel(sensor1, MessageBrocker, "Данные и телеметрия")
-Rel(sensor2, MessageBrocker, "Данные и телеметрия")
-Rel(sensor3, MessageBrocker, "Данные и телеметрия")
+Rel(sensor1, IOTGate, "Данные и телеметрия")
+Rel(sensor2, IOTGate, "Данные и телеметрия")
+Rel(sensor3, IOTGate, "Данные и телеметрия")
 
 @enduml
