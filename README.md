@@ -163,29 +163,36 @@ Rel(sensor3, IOTGate, "Данные и телеметрия")
 **Диаграмма компонентов (Components)**
 
 Добавьте диаграмму для каждого из выделенных микросервисов.
-[C4 Context Diagram](./Schemes/C4_context_Old.png)
+[C4 Component Diagram AccountMGM — Система управления аккаунтами](./Schemes/C4_Component_AccountMGM.png)
 
 ```plantuml
 @startuml
-title Warmhouse Context Diagram
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
 
-!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+title C4_Component_Diagram_AccountMGM — Система управления аккаунтами
 
 Person(user, "Пользователь", "Пользователь использующий систему")
 Person(admin, "Администратор", "Администратор выполняющий управление системой")
-System(WarmHouseSystem, "WarmHouseSystem", "Система управления отоплением")
 
-System_Ext(sensor, "Датчик", "API регулировки на устройстве")
+System_Ext(WebUI, "WebUI", "UI для управления системой")
+System_Ext(APIGate, "API", "API взаимодействия")
 
-Rel(user, WarmHouseSystem, "Включение/выключение отопления")
-Rel(user, WarmHouseSystem, "Установка температуры")
-Rel(user, WarmHouseSystem, "Просмотр температуры")
-Rel(admin, WarmHouseSystem, "Регистрация датчиков")
+Container_Boundary(AccountMGM, "Система управления аккаунтами") {
+    Component(AccountCore, "Account Core Service", "Бизнес-логика", "CRUD операции с Пользователями, Домами, Устройствами")
+    ComponentDb(AccountDb, "Account Database", "PostgreSQL", "Хранение таблиц Пользователей, Домов, Устройств и связей между ними")
+    Component(AuthService, "Authorization Service", "Осуществление авторизации, управление токенами, ролями и правами доступа")
+    Component(AccountBroker, "Message Broker для событий пользователей", "Message Broker", "Публикация событий с Пользователями, Домами, Устройствами для других сервисов")
+    Component(LogService, "Logger Service", "Фоновый процесс", "Логирование действий пользователей для EventLog")
+}
 
-Rel(admin, WarmHouseSystem, "Мониторинг датчиков")
-Rel(admin, WarmHouseSystem, "Администрирование системы")
-
-Rel(WarmHouseSystem, sensor, "Команды управления датчиком")
+Rel(user, WebUI, "Выполнение действий с данными Пользователей, Домов, Устройств")
+Rel(admin, WebUI, "Выполнение администрирования")
+Rel(WebUI, APIGate, "Отправка запросов")
+Rel(APIGate, AccountCore, "Вызов логики")
+Rel(AccountCore, AccountDb, " CRUD работа с учетными данными Пользователей, Домов, Устройств")
+Rel(AccountCore, AuthService, "Осуществление авторизации, управление токенами, ролями и правами доступа")
+Rel(AccountCore, AccountBroker, "Публикация событий с Пользователями, Домами, Устройствами для других сервисов)")
+Rel(AccountCore, LogService, "Передача данных об изменениях для EventLog")
 
 @enduml
 ```
