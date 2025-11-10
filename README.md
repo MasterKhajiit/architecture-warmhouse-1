@@ -42,6 +42,9 @@
 
 [C4 Context Diagram](./Schemes/C4_context_Old.png)
 
+<details>
+  <summary>PlantUML Source Code:</summary>
+
 ```plantuml
 @startuml
 title Warmhouse Context Diagram
@@ -66,12 +69,16 @@ Rel(WarmHouseSystem, sensor, "Команды управления датчико
 
 @enduml
 ```
+</details>
 
 # Задание 2. Проектирование микросервисной архитектуры
 
 **Диаграмма контейнеров (Containers)**
 
 [C4 Container Diagram](./Schemes/C4_container.png)
+
+<details>
+  <summary>PlantUML Source Code:</summary>
 
 ```plantuml
 @startuml
@@ -159,12 +166,18 @@ Rel(sensor2, IOTGate, "Данные и телеметрия")
 Rel(sensor3, IOTGate, "Данные и телеметрия")
 @enduml
 ```
+</details>
+
+
 
 **Диаграмма компонентов (Components)**
 
 Добавьте диаграмму для каждого из выделенных микросервисов.
 
 [C4 Component Diagram AccountMGM — Система управления аккаунтами](./Schemes/C4_Component_AccountMGM.png)
+
+<details>
+  <summary>PlantUML Source Code:</summary>
 
 ```plantuml
 @startuml
@@ -197,6 +210,7 @@ Rel(AccountCore, LogService, "Передача данных об изменен�
 
 @enduml
 ```
+</details>
 
 **Диаграмма кода (Code)**
 
