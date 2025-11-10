@@ -163,6 +163,7 @@ Rel(sensor3, IOTGate, "Данные и телеметрия")
 **Диаграмма компонентов (Components)**
 
 Добавьте диаграмму для каждого из выделенных микросервисов.
+
 [C4 Component Diagram AccountMGM — Система управления аккаунтами](./Schemes/C4_Component_AccountMGM.png)
 
 ```plantuml
