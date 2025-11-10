@@ -6,61 +6,78 @@ title Warmhouse Container Diagram
 Person(user, "Пользователь", "Пользователь использующий систему")
 Person(admin, "Администратор", "Администратор выполняющий управление системой")
 
+'Внешние устройства умного дома
+System_Ext(sensor1, "Устройство типа 1", "API на устройстве")
+System_Ext(sensor2, "Устройство типа 2", "API на устройстве")
+System_Ext(sensor3, "Устройство типа 3", "API на устройстве")
+
 Container_Boundary(WarmHouseSystem, "WarmHouseSystem") {
     Container(WebUI, "WebUI", "UI для управления системой")
     Container(APIGate, "API", "API взаимодействия")
     Container(IOTGate, "IOT Gate", "Gate для устройств")
 
-    Container(AccountMGM, "Account System", "Система управления аккаунтами")
-    ContainerDb(AccountDb, "Account Database", "PostgreSQL", "База данных о пользователях, домах и зарегистрированных устройствах")
+    'Функционал работы с учетными данными Пользователей, Домов, Устройств
+    Container_Boundary(AccountMGM, "Система управления аккаунтами"){
+        Container(AccountCore, "Account System", "Система управления аккаунтами")
+        ContainerDb(AccountDb, "Account Database", "PostgreSQL", "База данных о пользователях, домах и зарегистрированных устройствах")
+    }
 
-    Container(ScenarioEngine, "ScenarioEngine", "Система создания и управления пользовательскими сценариями")
-    ContainerDb(ScenarioDb, "Scenario Database", "PostgreSQL", "База данных пользовательских сценариев")
+    'Функционал работы с пользовательскими сценариями умного дома
+    Container_Boundary(ScenarioMGM, "Система создания и управления пользовательскими сценариями"){
+        Container(ScenarioEngine, "ScenarioEngine", "Система создания и управления пользовательскими сценариями")
+        ContainerDb(ScenarioDb, "Scenario Database", "PostgreSQL", "База данных пользовательских сценариев")
+    }
 
+    'Функционал работы с устройствами умного дома
     Container_Boundary(DeviceMGM, "Система управления устройствами") {
         Container(Management, "Device Management", "Система конфигурации и управления")
         Container(Telemetry, "Device Telemetry", "Система мониторинга и телеметрии")
         ContainerDb(DeviceDb, "Device Database", "PostgreSQL", "База конфигурации устройств и телеметрии")
     }
-    Container(MessageBrocker, "MessageBrocker", "RabbitMQ",  "Брокер сообщений")
+    Container(MessageBroker, "Message Broker", "RabbitMQ",  "Брокер сообщений")
 }
 
-System_Ext(sensor1, "Устройство типа 1", "API на устройстве")
-System_Ext(sensor2, "Устройство типа 2", "API на устройстве")
-System_Ext(sensor3, "Устройство типа 3", "API на устройстве")
-
+'Взаимодействие пользователя и Web UI системы
 Rel(user, WebUI, "Регистрация пользователя\дома\устройства")
 Rel(user, WebUI, "Команды управления устройством")
 Rel(user, WebUI, "Мониторинг и просмотр телеметрии устройства")
 Rel(user, WebUI, "Настройка сценариев умного дома")
 
+'Взаимодействие администратора и Web UI системы
 Rel(admin, WebUI, "Мониторинг датчиков")
 Rel(admin, WebUI, "Администрирование системы")
 
+'Передача запросов пользователя и администратора для маршрутизации через API-Gate
 Rel(WebUI, APIGate, "Запросы")
 
-Rel(APIGate, AccountMGM, "Регистрация пользователя\дома\устройства")
-Rel(AccountMGM, AccountDb, "CRUD")
+'Маршрутизация запросов через API-Gate:
+'1. Маршрутизация запросов работы с учетными данными Пользователей, Домов, Устройств
+Rel(APIGate, AccountCore, "Регистрация пользователя\дома\устройства")
+Rel(AccountCore, AccountDb, "CRUD")
 
+'2. Маршрутизация запросов работы с пользовательскими сценариями умного дома
 Rel(APIGate, ScenarioEngine, "Настройка сценариев умного дома")
 Rel(ScenarioEngine, ScenarioDb, "CRUD")
 Rel(ScenarioEngine, Management, "Команды управления устройством")
 
+'3. Маршрутизация запросов работы с устройствами умного дома
 Rel(APIGate, Management, "Команды управления устройством")
 Rel(Management, DeviceDb, "Команды управления устройством")
-Rel(Management, MessageBrocker, "Команды управления устройством")
-
+Rel(Management, MessageBroker, "Команды управления устройством")
 Rel(APIGate, Telemetry, "Мониторинг и просмотр телеметрии устройства")
-Rel(MessageBrocker, Telemetry, "Данные и телеметрия")
+Rel(MessageBroker, Telemetry, "Данные и телеметрия")
 Rel(Telemetry, DeviceDb, "Данные и телеметрия")
 
-Rel(MessageBrocker, IOTGate, "Команды управления устройством")
-Rel(IOTGate, MessageBrocker, "Данные и телеметрия")
+'Передача запросов работы с устройствами умного дома для маршрутизации через IOT-Gate и получение данных и телеметрии с устройств умного дома
+Rel(MessageBroker, IOTGate, "Команды управления устройством")
+Rel(IOTGate, MessageBroker, "Данные и телеметрия")
 
+'Маршрутизация запросов работы с устройствами умного дома
 Rel(IOTGate, sensor1, "Команды управления устройством")
 Rel(IOTGate, sensor2, "Команды управления устройством")
 Rel(IOTGate, sensor3, "Команды управления устройством")
 
+'Передача данных и телеметрии с устройств умного дома
 Rel(sensor1, IOTGate, "Данные и телеметрия")
 Rel(sensor2, IOTGate, "Данные и телеметрия")
 Rel(sensor3, IOTGate, "Данные и телеметрия")
