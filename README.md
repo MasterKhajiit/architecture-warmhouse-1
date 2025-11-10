@@ -74,7 +74,6 @@ Rel(WarmHouseSystem, sensor, "Команды управления датчико
 [C4 Container Diagram](./Schemes/C4_container.png)
 
 ```plantuml
-
 @startuml
 title Warmhouse Container Diagram
 
@@ -83,61 +82,78 @@ title Warmhouse Container Diagram
 Person(user, "Пользователь", "Пользователь использующий систему")
 Person(admin, "Администратор", "Администратор выполняющий управление системой")
 
+'Внешние устройства умного дома
+System_Ext(sensor1, "Устройство типа 1", "API на устройстве")
+System_Ext(sensor2, "Устройство типа 2", "API на устройстве")
+System_Ext(sensor3, "Устройство типа 3", "API на устройстве")
+
 Container_Boundary(WarmHouseSystem, "WarmHouseSystem") {
     Container(WebUI, "WebUI", "UI для управления системой")
     Container(APIGate, "API", "API взаимодействия")
     Container(IOTGate, "IOT Gate", "Gate для устройств")
 
-    Container(AccountMGM, "Account System", "Система управления аккаунтами")
-    ContainerDb(AccountDb, "Account Database", "PostgreSQL", "База данных о пользователях, домах и зарегистрированных устройствах")
+    'Функционал работы с учетными данными Пользователей, Домов, Устройств
+    Container_Boundary(AccountMGM, "Система управления аккаунтами"){
+        Container(AccountCore, "Account System", "Система управления аккаунтами")
+        ContainerDb(AccountDb, "Account Database", "PostgreSQL", "База данных о пользователях, домах и зарегистрированных устройствах")
+    }
 
-    Container(ScenarioEngine, "ScenarioEngine", "Система создания и управления пользовательскими сценариями")
-    ContainerDb(ScenarioDb, "Scenario Database", "PostgreSQL", "База данных пользовательских сценариев")
+    'Функционал работы с пользовательскими сценариями умного дома
+    Container_Boundary(ScenarioMGM, "Система создания и управления пользовательскими сценариями"){
+        Container(ScenarioEngine, "ScenarioEngine", "Система создания и управления пользовательскими сценариями")
+        ContainerDb(ScenarioDb, "Scenario Database", "PostgreSQL", "База данных пользовательских сценариев")
+    }
 
+    'Функционал работы с устройствами умного дома
     Container_Boundary(DeviceMGM, "Система управления устройствами") {
         Container(Management, "Device Management", "Система конфигурации и управления")
         Container(Telemetry, "Device Telemetry", "Система мониторинга и телеметрии")
         ContainerDb(DeviceDb, "Device Database", "PostgreSQL", "База конфигурации устройств и телеметрии")
     }
-    Container(MessageBrocker, "MessageBrocker", "RabbitMQ",  "Брокер сообщений")
+    Container(MessageBroker, "Message Broker", "RabbitMQ",  "Брокер сообщений")
 }
 
-System_Ext(sensor1, "Устройство типа 1", "API на устройстве")
-System_Ext(sensor2, "Устройство типа 2", "API на устройстве")
-System_Ext(sensor3, "Устройство типа 3", "API на устройстве")
-
-Rel(user, WebUI, "Регистрация пользователядомаустройства")
+'Взаимодействие пользователя и Web UI системы
+Rel(user, WebUI, "Регистрация пользователя\дома\устройства")
 Rel(user, WebUI, "Команды управления устройством")
 Rel(user, WebUI, "Мониторинг и просмотр телеметрии устройства")
 Rel(user, WebUI, "Настройка сценариев умного дома")
 
+'Взаимодействие администратора и Web UI системы
 Rel(admin, WebUI, "Мониторинг датчиков")
 Rel(admin, WebUI, "Администрирование системы")
 
+'Передача запросов пользователя и администратора для маршрутизации через API-Gate
 Rel(WebUI, APIGate, "Запросы")
 
-Rel(APIGate, AccountMGM, "Регистрация пользователядомаустройства")
-Rel(AccountMGM, AccountDb, "CRUD")
+'Маршрутизация запросов через API-Gate:
+'1. Маршрутизация запросов работы с учетными данными Пользователей, Домов, Устройств
+Rel(APIGate, AccountCore, "Регистрация пользователя\дома\устройства")
+Rel(AccountCore, AccountDb, "CRUD")
 
+'2. Маршрутизация запросов работы с пользовательскими сценариями умного дома
 Rel(APIGate, ScenarioEngine, "Настройка сценариев умного дома")
 Rel(ScenarioEngine, ScenarioDb, "CRUD")
 Rel(ScenarioEngine, Management, "Команды управления устройством")
 
+'3. Маршрутизация запросов работы с устройствами умного дома
 Rel(APIGate, Management, "Команды управления устройством")
 Rel(Management, DeviceDb, "Команды управления устройством")
-Rel(Management, MessageBrocker, "Команды управления устройством")
-
+Rel(Management, MessageBroker, "Команды управления устройством")
 Rel(APIGate, Telemetry, "Мониторинг и просмотр телеметрии устройства")
-Rel(MessageBrocker, Telemetry, "Данные и телеметрия")
+Rel(MessageBroker, Telemetry, "Данные и телеметрия")
 Rel(Telemetry, DeviceDb, "Данные и телеметрия")
 
-Rel(MessageBrocker, IOTGate, "Команды управления устройством")
-Rel(IOTGate, MessageBrocker, "Данные и телеметрия")
+'Передача запросов работы с устройствами умного дома для маршрутизации через IOT-Gate и получение данных и телеметрии с устройств умного дома
+Rel(MessageBroker, IOTGate, "Команды управления устройством")
+Rel(IOTGate, MessageBroker, "Данные и телеметрия")
 
+'Маршрутизация запросов работы с устройствами умного дома
 Rel(IOTGate, sensor1, "Команды управления устройством")
 Rel(IOTGate, sensor2, "Команды управления устройством")
 Rel(IOTGate, sensor3, "Команды управления устройством")
 
+'Передача данных и телеметрии с устройств умного дома
 Rel(sensor1, IOTGate, "Данные и телеметрия")
 Rel(sensor2, IOTGate, "Данные и телеметрия")
 Rel(sensor3, IOTGate, "Данные и телеметрия")
@@ -147,6 +163,70 @@ Rel(sensor3, IOTGate, "Данные и телеметрия")
 **Диаграмма компонентов (Components)**
 
 Добавьте диаграмму для каждого из выделенных микросервисов.
+[C4 Context Diagram](./Schemes/C4_context_Old.png)
+
+```plantuml
+@startuml
+title Warmhouse Context Diagram
+
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Context.puml
+
+Person(user, "Пользователь", "Пользователь использующий систему")
+Person(admin, "Администратор", "Администратор выполняющий управление системой")
+System(WarmHouseSystem, "WarmHouseSystem", "Система управления отоплением")
+
+System_Ext(sensor, "Датчик", "API регулировки на устройстве")
+
+Rel(user, WarmHouseSystem, "Включение/выключение отопления")
+Rel(user, WarmHouseSystem, "Установка температуры")
+Rel(user, WarmHouseSystem, "Просмотр температуры")
+Rel(admin, WarmHouseSystem, "Регистрация датчиков")
+
+Rel(admin, WarmHouseSystem, "Мониторинг датчиков")
+Rel(admin, WarmHouseSystem, "Администрирование системы")
+
+Rel(WarmHouseSystem, sensor, "Команды управления датчиком")
+
+@enduml
+```
+
+# Задание 2. Проектирование микросервисной архитектуры
+
+**Диаграмма контейнеров (Containers)**
+
+[C4 Component - AccountMGM](./Schemes/C4_Component_AccountMGM.png)
+
+```plantuml
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title C4_Component_Diagram_AccountMGM — Система управления аккаунтами
+
+Person(user, "Пользователь", "Пользователь использующий систему")
+Person(admin, "Администратор", "Администратор выполняющий управление системой")
+
+System_Ext(WebUI, "WebUI", "UI для управления системой")
+System_Ext(APIGate, "API", "API взаимодействия")
+
+Container_Boundary(AccountMGM, "Система управления аккаунтами") {
+    Component(AccountCore, "Account Core Service", "Бизнес-логика", "CRUD операции с Пользователями, Домами, Устройствами")
+    ComponentDb(AccountDb, "Account Database", "PostgreSQL", "Хранение таблиц Пользователей, Домов, Устройств и связей между ними")
+    Component(AuthService, "Authorization Service", "Осуществление авторизации, управление токенами, ролями и правами доступа")
+    Component(AccountBroker, "Message Broker для событий пользователей", "Message Broker", "Публикация событий с Пользователями, Домами, Устройствами для других сервисов")
+    Component(LogService, "Logger Service", "Фоновый процесс", "Логирование действий пользователей для EventLog")
+}
+
+Rel(user, WebUI, "Выполнение действий с данными Пользователей, Домов, Устройств")
+Rel(admin, WebUI, "Выполнение администрирования")
+Rel(WebUI, APIGate, "Отправка запросов")
+Rel(APIGate, AccountCore, "Вызов логики")
+Rel(AccountCore, AccountDb, " CRUD работа с учетными данными Пользователей, Домов, Устройств")
+Rel(AccountCore, AuthService, "Осуществление авторизации, управление токенами, ролями и правами доступа")
+Rel(AccountCore, AccountBroker, "Публикация событий с Пользователями, Домами, Устройствами для других сервисов)")
+Rel(AccountCore, LogService, "Передача данных об изменениях для EventLog")
+
+@enduml
+```
 
 **Диаграмма кода (Code)**
 
