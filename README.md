@@ -42,7 +42,7 @@
 
 [C4 Context Diagram](./Schemes/C4_context_Old.png)
 
-```PlantUML
+```plantuml
 @startuml
 title Warmhouse Context Diagram
 
@@ -56,15 +56,17 @@ System_Ext(sensor, "Датчик", "API на устройстве регулир
 
 Rel(user, WarmHouseSystem, "Включение/выключение отопления")
 Rel(user, WarmHouseSystem, "Установка температуры")
-Rel_Back(user, WarmHouseSystem, "Просмотр температуры")
-
+Rel(user, WarmHouseSystem, "Просмотр температуры")
 Rel(admin, WarmHouseSystem, "Регистрация датчиков")
-Rel_Back(admin, WarmHouseSystem, "Мониторинг датчиков")
+
+Rel(admin, WarmHouseSystem, "Мониторинг датчиков")
 Rel(admin, WarmHouseSystem, "Администрирование системы")
 
 Rel(WarmHouseSystem, sensor, "Команды управления датчиком")
+
 @enduml
 ```
+
 # Задание 2. Проектирование микросервисной архитектуры
 
 В этом задании вам нужно предоставить только диаграммы в модели C4. Мы не просим вас отдельно описывать получившиеся микросервисы и то, как вы определили взаимодействия между компонентами To-Be системы. Если вы правильно подготовите диаграммы C4, они и так это покажут.
@@ -148,4 +150,3 @@ Locations - название комнаты, sensorId - идентификато
 Должно при каждом вызове отображаться разное значение температуры
 
 Ревьюер будет проверять точно так же.
-

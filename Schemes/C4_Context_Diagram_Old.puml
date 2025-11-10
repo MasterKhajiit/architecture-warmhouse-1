@@ -11,10 +11,10 @@ System_Ext(sensor, "Датчик", "API на устройстве регулир
 
 Rel(user, WarmHouseSystem, "Включение/выключение отопления")
 Rel(user, WarmHouseSystem, "Установка температуры")
-Rel_Back(user, WarmHouseSystem, "Просмотр температуры")
+Rel(user, WarmHouseSystem, "Просмотр температуры")
 
 Rel(admin, WarmHouseSystem, "Регистрация датчиков")
-Rel_Back(admin, WarmHouseSystem, "Мониторинг датчиков")
+Rel(admin, WarmHouseSystem, "Мониторинг датчиков")
 Rel(admin, WarmHouseSystem, "Администрирование системы")
 
 Rel(WarmHouseSystem, sensor, "Команды управления датчиком")
