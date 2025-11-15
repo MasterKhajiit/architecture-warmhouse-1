@@ -1,0 +1,45 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title C4_Component_Diagram_DeviceMGM — Система управления устройствами
+
+Person(user, "Пользователь", "Пользователь использующий систему")
+Person(admin, "Администратор", "Администратор выполняющий управление системой")
+
+System_Ext(WebUI, "WebUI", "UI для управления системой")
+System_Ext(APIGate, "API", "API взаимодействия")
+System_Ext(MessageBroker, "Message Broker", "RabbitMQ",  "Брокер сообщений")
+System_Ext(AccountMGM, "Account Management",  "Система управления аккаунтами")
+
+Container_Boundary(DeviceMGM, "Система управления устройствами") {
+    Component(Management, "Device Management", "Система конфигурации и управления")
+    Component(Telemetry, "Device Telemetry", "Система мониторинга и телеметрии")
+    Component(RepoService, "Device Repository Service", "Приложение по работе с репозиторием устройств и данных")
+    Component(EventService, "Event Service", "Фоновый процесс", "Логирование действий пользователей для EventLog")
+    ComponentDb(DeviceDb, "Device Database", "PostgreSQL", "База конфигурации устройств и телеметрии")
+}
+
+Rel(user, WebUI, "Команды управления устройством")
+Rel(user, WebUI, "Мониторинг и просмотр телеметрии устройства")
+Rel(admin, WebUI, "Выполнение администрирования")
+
+Rel(WebUI, APIGate, "Отправка запросов")
+
+Rel(APIGate, Management, "Команды управления устройством")
+Rel(APIGate, Telemetry, "Мониторинг и просмотр телеметрии устройства")
+
+Rel(Management, RepoService, "Команды управления устройством")
+Rel(Management, EventService, "Публикация команд и событий")
+
+Rel(Telemetry, RepoService, "Данные телеметрии")
+Rel(Telemetry, EventService, "Запрос состояния устройства")
+
+Rel(EventService, Telemetry, "Данные телеметрии")
+Rel(EventService, MessageBroker, "Передача команд и событий")
+
+Rel(RepoService, DeviceDb, "Конфигурация устройства")
+Rel(RepoService, DeviceDb, "Данные состояния и телеметрии")
+
+Rel(AccountMGM, RepoService, "Передача регистрационных данных устройств")
+
+@enduml

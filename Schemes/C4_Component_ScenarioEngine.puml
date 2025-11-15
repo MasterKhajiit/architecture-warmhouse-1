@@ -1,0 +1,37 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Component.puml
+
+title C4_Component_Diagram_DeviceMGM — Система управления устройствами
+
+Person(user, "Пользователь", "Пользователь использующий систему")
+
+System_Ext(WebUI, "WebUI", "UI для управления системой")
+System_Ext(APIGate, "API", "API взаимодействия")
+System_Ext(DeviceMGM, "Device Management",  "Система управления устройствами")
+
+Container_Boundary(ScenarioMGM, "Scenario Engine") {
+    Component(ScenarioEditor, "Scenario Editor", "Система создания и управления сценариями")
+    Component(CommandService, "Command Service", "Система управления командами")
+    Component(Runner, "Runner")
+    Component(RepositoryService, "Repository Service", "Сервис работы с БД")
+    ComponentDb(ScenarioDb, "Scenario Database", "PostgreSQL", "База сценариев")
+}
+
+Rel(user, WebUI, "Команды управления устройством")
+Rel(user, WebUI, "Создание сценариев")
+
+Rel(WebUI, APIGate, "Отправка запросов")
+
+Rel(APIGate, CommandService, "Команды управления устройством")
+Rel(APIGate, ScenarioEditor, "Создание сценариев")
+
+Rel(ScenarioEditor, CommandService, "Исполнение сценариев")
+Rel(ScenarioEditor, RepositoryService, "Сохранение сценариев")
+
+Rel(RepositoryService, ScenarioDb, "Сохранение сценариев")
+
+Rel(CommandService, Runner, "Формирование команд для исполнения")
+
+Rel(Runner, DeviceMGM, "Исполнение команд")
+
+@enduml
